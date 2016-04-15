@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Empty
 import struct
 
 try:
@@ -32,6 +33,13 @@ def sendCommandRaw(command):
         tkMessageBox.showinfo('Uh-oh', "Lost connection to the robot!")
         connection = None
 
+def ResetCallback(msg):
+    sendCommandASCII('128')
+    sendCommandASCII('131')
+
+def EmergencyStopCallback(msg):
+    sendCommandASCII('128')
+
 def callback(Velocity):
     forward = Velocity.linear.x
     yaw = Velocity.angular.z
@@ -40,16 +48,18 @@ def callback(Velocity):
     speed = 550
     cmd = struct.pack(">Bhh", 145, speed*vr, speed*vl)
     sendCommandRaw(cmd)
-    
+
 def listener():
 
     rospy.init_node('Create_Driver', anonymous=True)
     rospy.Subscriber("Create2_Driver/cmd_vel", Twist, callback)
+    rospy.Subscriber("Create2_Driver/reset", Empty, ResetCallback)
+    rospy.Subscriber("Create2_Driver/stop", Empty, EmergencyStopCallback)
     rospy.spin()
 
 if __name__ == '__main__':
     global connection
     connection = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=1)
     sendCommandASCII('128')
-    sendCommandASCII('132')
+    sendCommandASCII('131')
     listener()
