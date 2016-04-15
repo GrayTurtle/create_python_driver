@@ -37,8 +37,6 @@ class MyClass:
 		command.linear.x = linear
 		command.angular.z = angular		
 		self.pub.publish(command)
-		print angular
-		print linear
 
 		'''
 		axis[0] left and right pos and neg
